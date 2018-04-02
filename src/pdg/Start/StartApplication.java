@@ -11,12 +11,11 @@ public class StartApplication {
 	public GameController controller = new GameController();
 	
 	public StartApplication() {
-		
+		//connect controller to model and the view
 		controller.addModel(model);
 		controller.addView(view);
-		//tell View about the Controller
+		//connect view to controller so that it can use the action listener
 		view.addController(controller);
-		view.addModel(model);
 	}
 
 }

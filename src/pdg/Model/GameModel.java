@@ -1,63 +1,114 @@
 package pdg.Model;
 
+import java.util.ArrayList;
+
 public class GameModel {
-	
-	//variables for game and network settings:
-	//node strategy types allowed
+
+	// variables for game and network settings:
+	// node strategy types allowed
 	private boolean orgApproach;
 	private boolean tit4tat;
-	private boolean fixedDefaultCoopChance;
-	private boolean alwaysCoop;
-	private boolean alwaysDef;
+	private boolean random;
 	private boolean tit4tatRandom;
-	private boolean tit42tats;
-	private boolean fixedChanceOverViCoop;
-	//variable for fixed chance overriding ViCoop strategy:
-	private double fixedChanceOverrideValue;
+
+	// other:
+	private boolean forcedPlay;
+	private boolean isForgiving;
+	//gain settings:
+	private double gIncrease;
+	private double gDecrease;
+	private double randomChanceValue;
 	
-	//other:
+	//small world settings:
 	private int smallWorldK;
 	private double smallWorldRewire;
 	
-	//node weights
+	//random graph:
+	private int totalEdges;
+
+	// for generating node strategies (weights)
 	private double origApproach;
 	private double t4t;
-	private double fxDefCoop;
-	private double fxChanceOverride;
-	private double aCoop;
-	private double aDef;
 	private double t4tRand;
-	private double t42t;
-	
-	//node strategy change allowed
+	private double rand;
+
+	// node strategy change allowed
 	private boolean strategyChange;
-	
-	//node strategy change reasons selected
+
+	// node strategy change reasons selected
 	private boolean randomChange;
 	private double randomChangeValue;
-	private boolean loosingXTimes;
-	private int losingXTimesValue;
 	private boolean loosingNeighbour;
-	
-	//number of turns to play
-	private int turns;
-	//node number
-	private int nodeNumber;
-	//alpha factor
-	private double alpha;
-	//base trust credit
-	private int cr;
-	//memory span
-	private int m;
-	//fix cooperation value for all
-	boolean fixedCoop;
-	//fixed coop value
-	double fixedVcoop;
-	//nodes neighbourhood array from controller
-	private int[] nodeNeighbourghood;
 
-	//default constructor to initialise on start
+	// number of turns to play
+	private int turns;
+	// node number
+	private int nodeNumber;
+	// alpha factor
+	private double alpha;
+	// base trust credit
+	private int cr;
+	// memory span
+	private int m;
+	// fix cooperation value for all
+	boolean fixedCoop;
+	// fixed coop value
+	double fixedVcoop;
+	// nodes neighbourhood array from controller
+	private int[] nodeNeighbourghood;
+	// game model matrix:
+	private int[][] matrix;
+
+	// Nodes arraylist which will contain all the nodes in the structure:
+	private ArrayList<Node> nodes = new ArrayList<>();
+	
+	private long seed;
+
+	// default constructor to initialise on start
 	public GameModel() {
+	}
+
+	// get neighbour matrix for node id
+	public int[] getNeighbourMatrix(int id) {
+
+		int[] neighbour = new int[this.getNodeNumber()];
+		for (int i = 0; i < this.getNodeNumber(); i++) {
+			neighbour[i] = matrix[id][i];
+		}
+
+		return neighbour;
+	}
+
+	public double getOrigApproachWeight() {
+		return origApproach;
+	}
+
+	public double getT4TWeight() {
+		return t4t;
+	}
+
+	public double getRandomWeight() {
+		return rand;
+	}
+
+	public double getT4TRandWeight() {
+		return t4tRand;
+	}
+
+	public void setOrigApproachWeight(double origWeight) {
+		this.origApproach = origWeight;
+	}
+
+	public void setT4TWeight(double t4TWeight) {
+		this.t4t = t4TWeight;
+	}
+
+	public void setRandomWeight(double random) {
+		this.rand = random;
+	}
+
+	public void setT4TRandWeight(double t4tRand) {
+		this.t4tRand = t4tRand;
 	}
 
 	public boolean isOrgApproach() {
@@ -76,52 +127,20 @@ public class GameModel {
 		this.tit4tat = tit4tat;
 	}
 
-	public boolean isFixedDefaultCoopChance() {
-		return fixedDefaultCoopChance;
+	public boolean isRandom() {
+		return random;
 	}
 
-	public void setFixedDefaultCoopChance(boolean fixedDefaultCoopChance) {
-		this.fixedDefaultCoopChance = fixedDefaultCoopChance;
+	public void setRandom(boolean random) {
+		this.random = random;
 	}
 
-	public boolean isFixedChanceOverViCoop() {
-		return fixedChanceOverViCoop;
-	}
-
-	public void setFixedChanceOverViCoop(boolean fixedChanceOverViCoop) {
-		this.fixedChanceOverViCoop = fixedChanceOverViCoop;
-	}
-
-	public boolean isAlwaysCoop() {
-		return alwaysCoop;
-	}
-
-	public void setAlwaysCoop(boolean alwaysCoop) {
-		this.alwaysCoop = alwaysCoop;
-	}
-
-	public boolean isAlwaysDef() {
-		return alwaysDef;
-	}
-
-	public void setAlwaysDef(boolean alwaysDef) {
-		this.alwaysDef = alwaysDef;
-	}
-
-	public boolean isTit4tatRandom() {
+	public boolean isTit4TatRandom() {
 		return tit4tatRandom;
 	}
 
-	public void setTit4tatRandom(boolean tit4tatRandom) {
+	public void setTit4TatRandom(boolean tit4tatRandom) {
 		this.tit4tatRandom = tit4tatRandom;
-	}
-
-	public boolean isTit42tats() {
-		return tit42tats;
-	}
-
-	public void setTit42tats(boolean tit42tats) {
-		this.tit42tats = tit42tats;
 	}
 
 	public double getOriginalApproach() {
@@ -146,14 +165,6 @@ public class GameModel {
 
 	public void setRandomChange(boolean randomChange) {
 		this.randomChange = randomChange;
-	}
-
-	public boolean isLoosingXTimes() {
-		return loosingXTimes;
-	}
-
-	public void setLoosingXTimes(boolean loosingXTimes) {
-		this.loosingXTimes = loosingXTimes;
 	}
 
 	public boolean isLoosingNeighbour() {
@@ -220,75 +231,35 @@ public class GameModel {
 		this.t4t = t4t;
 	}
 
-	public double getFxDefCoop() {
-		return fxDefCoop;
+	public double getRandom() {
+		return rand;
 	}
 
-	public void setFxDefCoop(double fxDefCoop) {
-		this.fxDefCoop = fxDefCoop;
+	public void setRandom(double rand) {
+		this.rand = rand;
 	}
 
-	public double getFxChanceOverride() {
-		return fxChanceOverride;
-	}
-
-	public void setFxChanceOverride(double fxChanceOverride) {
-		this.fxChanceOverride = fxChanceOverride;
-	}
-
-	public double getaCoop() {
-		return aCoop;
-	}
-
-	public void setaCoop(double aCoop) {
-		this.aCoop = aCoop;
-	}
-
-	public double getaDef() {
-		return aDef;
-	}
-
-	public void setaDef(double aDef) {
-		this.aDef = aDef;
-	}
-
-	public double getT4tRand() {
+	public double getT4TRand() {
 		return t4tRand;
 	}
 
-	public void setT4tRand(double t4tRand) {
+	public void setT4TRand(double t4tRand) {
 		this.t4tRand = t4tRand;
 	}
 
-	public double getT42t() {
-		return t42t;
-	}
-
-	public void setT42t(double t42t) {
-		this.t42t = t42t;
-	}
-
-	public double getFixedChanceOverrideValue() {
-		return fixedChanceOverrideValue;
-	}
-
-	public void setFixedChanceOverrideValue(double fixedChanceOverrideValue) {
-		this.fixedChanceOverrideValue = fixedChanceOverrideValue;
-	}
-	
 	public void setFixedCoop(boolean fixedCoop) {
 		this.fixedCoop = fixedCoop;
 	}
-	
+
 	public boolean getFixedCoop() {
 		return fixedCoop;
 	}
-	
-	public void setFixedVcoop (double fixedVcoop) {
+
+	public void setFixedVcoop(double fixedVcoop) {
 		this.fixedVcoop = fixedVcoop;
 	}
-	
-	public double getFixedVcoop () {
+
+	public double getFixedVcoop() {
 		return fixedVcoop;
 	}
 
@@ -300,27 +271,111 @@ public class GameModel {
 		this.randomChangeValue = randomChangeValue;
 	}
 
-	public int getLosingXTimesValue() {
-		return losingXTimesValue;
-	}
-
-	public void setLosingXTimesValue(int losingXTimesValue) {
-		this.losingXTimesValue = losingXTimesValue;
-	}
-
 	public void setSmallWorldK(int parseInt) {
 		smallWorldK = parseInt;
 	}
-	 
+
 	public int getSmallWorldK() {
 		return smallWorldK;
 	}
-	
+
 	public void setSmallWorldRewire(double rewire) {
 		smallWorldRewire = rewire;
 	}
-	
+
 	public double getSmallWorldRewire() {
 		return smallWorldRewire;
+	}
+
+	public int[][] getMatrix() {
+		return matrix;
+	}
+
+	public void setMatrix(int[][] matrix) {
+		this.matrix = matrix;
+	}
+
+	// get whole array of nodes
+	public ArrayList<Node> getNodes() {
+		return nodes;
+	}
+
+	// get individual node by given id
+	public Node getNode(int nodeID) {
+		return nodes.get(nodeID);
+	}
+
+	public void setNodes(ArrayList<Node> nodes) {
+		this.nodes = nodes;
+	}
+	
+	public void initNodes () {
+		nodes = new ArrayList<>();
+	}
+
+	public void removeAllNodes() {
+		this.nodes.removeAll(nodes);
+	}
+
+	// adds a node to an array list:
+	public void addNewNode(int[] neighbourhoodMatrix, double[] neighbourhoodWeights, int n, int i, double alpha2,
+			double fixedCoopValue, int m2, int turns, String strategy) {
+		nodes.add(new Node(neighbourhoodMatrix, neighbourhoodWeights, n, i, alpha2, fixedCoopValue, m2, turns, strategy));
+	}
+
+	public boolean isForcedPlay() {
+		return forcedPlay;
+	}
+
+	public void setForcedPlay(boolean forcedPlay) {
+		this.forcedPlay = forcedPlay;
+	}
+
+	//check if setting is forgiving is selected true or false:
+	public boolean isForgiving() {
+		return isForgiving;
+	}
+
+	public void setForgiving(boolean isForgiving) {
+		this.isForgiving = isForgiving;
+	}
+
+	public long getSeed() {
+		return seed;
+	}
+
+	public void setSeed(long seed) {
+		this.seed = seed;
+	}
+
+	public double getGIncrease() {
+		return gIncrease;
+	}
+
+	public void setGIncrease(double gIncrease) {
+		this.gIncrease = gIncrease;
+	}
+
+	public double getGDecrease() {
+		return gDecrease;
+	}
+
+	public void setGDecrease(double gDecrease) {
+		this.gDecrease = gDecrease;
+	}
+
+	public double getRandomChanceValue() {
+		return randomChanceValue;
+	}
+
+	public void setRandomChanceValue(double randomChanceValue) {
+		this.randomChanceValue = randomChanceValue;
+	}
+
+	public void setTotalEdges(int edges) {
+		this.totalEdges = edges;
+	}
+	public int getTotalEdges() {
+		return totalEdges;
 	}
 }
